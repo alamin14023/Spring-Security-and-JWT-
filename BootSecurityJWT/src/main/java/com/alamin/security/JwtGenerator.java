@@ -7,12 +7,14 @@ import javax.crypto.SecretKey;
 
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
+@Component
 public class JwtGenerator {
 	
 	private static final SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_SECRET);
@@ -42,7 +44,11 @@ public class JwtGenerator {
 	}
 	public boolean validateToken(String token) {
 		try {
-			Jwts.parser().setSigningKey(key).build().parseClaimsJws(token);
+			Jwts.parser()
+			.setSigningKey(key)
+			.build()
+			.parseClaimsJws(token);
+			
 			return true;
 		}catch (Exception e) {
 			throw new AuthenticationCredentialsNotFoundException("Jwt was expired or incorrect!");

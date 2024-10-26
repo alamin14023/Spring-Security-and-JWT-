@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alamin.dto.AuthResponseDTO;
 import com.alamin.dto.LoginDto;
 import com.alamin.dto.RegisterDto;
 import com.alamin.models.Role;
 import com.alamin.models.UserEntity;
 import com.alamin.repository.RoleRepository;
 import com.alamin.repository.UserRepository;
+import com.alamin.security.JwtGenerator;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -38,13 +40,17 @@ public class AuthController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
+	@Autowired
+	private JwtGenerator jwtGenerator;
+	
 	@RequestMapping("login")
-	public ResponseEntity<String> login(@RequestBody LoginDto loginDto){
+	public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDto loginDto){
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginDto.getUsername(), 
 						loginDto.getPassword()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-		return new ResponseEntity<>("User signed success!", HttpStatus.OK);
+		String token = jwtGenerator.generateToken(authentication);
+		return new ResponseEntity<>(new AuthResponseDTO(token), HttpStatus.OK);
 	}
 	
 	@PostMapping("register")
